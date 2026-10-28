@@ -6,9 +6,11 @@ Scoring is intentionally simple and inspectable:
 
 * Hard constraints (category, budget, must-have / avoid features) exclude items
   outright and are reported as exclusion reasons, never silently dropped.
-* Priorities are weighted by order: the first stated priority counts most.
-* The "value" bonus rewards items well under budget so the engine does not
-  simply recommend the most expensive thing that fits.
+* Priorities are weighted by order (1, 1/2, 1/3, ...): the first stated
+  priority dominates, which matches how people actually state needs.
+* A small budget-headroom bonus (max 0.5) breaks ties toward cheaper items
+  without overriding priorities. Users who care about cost add "value" as a
+  priority instead.
 
 The output carries every contribution so the CLI and chat layer can explain
 *why* without re-deriving anything.
@@ -54,8 +56,8 @@ class Recommendation:
 
 
 def priority_weights(priorities: tuple[str, ...]) -> dict[str, float]:
-    """First priority weighs 1.0, then 0.75, 0.5, ... (floor 0.25)."""
-    return {p: max(0.25, 1.0 - 0.25 * i) for i, p in enumerate(priorities)}
+    """Harmonic weights: 1.0, 0.5, 0.33, ... so the first priority dominates."""
+    return {p: round(1.0 / (i + 1), 3) for i, p in enumerate(priorities)}
 
 
 def check_constraints(item: Item, profile: NeedsProfile) -> list[str]:
@@ -88,7 +90,8 @@ def score_item(item: Item, profile: NeedsProfile) -> Scored:
         contributions["value"] = float(item.attr("value"))
     if profile.budget:
         headroom = max(0.0, (profile.budget - item.price) / profile.budget)
-        contributions["budget-headroom"] = round(2.0 * headroom, 2)
+        # Capped at 0.5 so it only breaks ties; "value" is a selectable priority for cost-sensitive users.
+        contributions["budget-headroom"] = round(0.5 * headroom, 2)
     return Scored(
         item=item,
         score=round(sum(contributions.values()), 2),
