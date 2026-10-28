@@ -1,5 +1,7 @@
 # decision-guide
 
+![CI](https://github.com/kariachintan/decision-guide/actions/workflows/ci.yml/badge.svg)
+
 An explainable decision assistant over a **synthetic** home-office catalog. Give it a category, a budget, and ordered priorities; it filters, ranks, explains every score, compares items side by side, and answers follow-up questions without ever stepping outside the catalog.
 
 > Everything here is invented: product names, prices, attributes. It is a portfolio project built from public knowledge, not an employer project, and it has no affiliation with any retailer.
