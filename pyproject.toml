@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decision-guide"
+version = "0.1.0"
+description = "Explainable decision assistant for a synthetic home-office catalog, with grounded conversational follow-up."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-cov>=4"]
+llm = ["anthropic>=0.30"]
+
+[project.scripts]
+decision-guide = "decision_guide.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["decision_guide*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
